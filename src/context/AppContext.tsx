@@ -68,12 +68,13 @@ interface AppContextType {
   revokePermission: (permissionId: string) => void;
   
   // Song & Library management
-  uploadSong: (data: { name: string; folderId?: string; fileName: string; duration?: string; description?: string }) => Promise<void>;
+  uploadSong: (data: { name: string; fileName: string; duration?: string; description?: string }) => Promise<void>;
   renameSong: (songId: string, newName: string) => void;
-  moveSong: (songId: string, targetFolderId: string) => void;
+  moveSong: (songId: string, targetFolderId: string | null) => void;
   archiveSong: (songId: string) => void;
   createFolder: (name: string, description?: string) => void;
   renameFolder: (folderId: string, newName: string) => void;
+  getSongFolderName: (song: Song) => string;
   
   // User Management (SuperAdmin)
   createUser: (userData: { name: string; email: string; role: UserRole; initialPassword?: string }) => void;
@@ -268,6 +269,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const song = songs.find(s => s.id === songId);
     if (!song) return;
 
+    const songFolder = song.folderId ? folders.find(f => f.id === song.folderId) : null;
+
     const newRequest: RequestItem = {
       id: 'req-' + Date.now(),
       userId: currentUser.uid,
@@ -275,7 +278,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       userEmail: currentUser.email,
       songId: song.id,
       songName: song.name,
-      folderName: song.folderName,
+      folderName: songFolder ? songFolder.name : 'Sin carpeta',
       status: 'PENDING',
       requestedAt: new Date().toISOString()
     };
@@ -402,33 +405,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Upload Song (Admin)
-  const uploadSong = async (data: { name: string; folderId?: string; fileName: string; duration?: string; description?: string }) => {
+  const uploadSong = async (data: { name: string; fileName: string; duration?: string; description?: string }) => {
     if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN')) {
       throw new Error('No autorizado');
     }
 
-    const targetFolder = data.folderId ? folders.find(f => f.id === data.folderId) : null;
-    const folderName = targetFolder ? targetFolder.name : 'Sin carpeta';
-    const folderId = targetFolder ? targetFolder.id : '';
-
-    // Pick appropriate thumbnail based on folder
-    let thumb = INITIAL_SONGS[0].thumbnailUrl;
-    if (folderId === 'fld-domingo') thumb = INITIAL_SONGS[1].thumbnailUrl;
-    else if (folderId === 'fld-viernes') thumb = INITIAL_SONGS[2].thumbnailUrl;
-    else if (folderId === 'fld-comunion') thumb = INITIAL_SONGS[4].thumbnailUrl;
-    else if (folderId === 'fld-himnos') thumb = INITIAL_SONGS[3].thumbnailUrl;
-
     const newSong: Song = {
       id: 'sng-' + Date.now(),
       name: data.name.trim(),
-      folderId: folderId,
-      folderName,
+      folderId: null,
       storagePath: `gs://cantos-storage/uploads/${data.fileName.toLowerCase().replace(/\s+/g, '_')}`,
       uploadedAt: new Date().toISOString(),
       uploadedBy: currentUser.uid,
       uploadedByName: currentUser.name,
       status: 'activo',
-      thumbnailUrl: thumb,
+      thumbnailUrl: INITIAL_SONGS[0].thumbnailUrl,
       duration: data.duration || '3:50',
       fileSize: '58.0 MB',
       description: data.description || 'Canto espiritual subido para soporte de congregación.',
@@ -441,9 +432,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       'cancion_subida',
       newSong.id,
       'song',
-      targetFolder
-        ? `${currentUser.name} subió la canción "${newSong.name}" a la carpeta "${folderName}"`
-        : `${currentUser.name} subió la canción "${newSong.name}" a la biblioteca`
+      `${currentUser.name} subió la canción "${newSong.name}" a la biblioteca`
     );
 
     showToast(`Canción subida correctamente: "${newSong.name}".`, 'success');
@@ -456,14 +445,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('Nombre de la canción actualizado.', 'success');
   };
 
-  const moveSong = (songId: string, targetFolderId: string) => {
+  const moveSong = (songId: string, targetFolderId: string | null) => {
     if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN')) return;
-    const targetFolder = folders.find(f => f.id === targetFolderId);
-    if (!targetFolder) return;
+    const targetFolder = targetFolderId ? folders.find(f => f.id === targetFolderId) : null;
     setSongs(prev =>
-      prev.map(s => (s.id === songId ? { ...s, folderId: targetFolderId, folderName: targetFolder.name } : s))
+      prev.map(s => (s.id === songId ? { ...s, folderId: targetFolder ? targetFolder.id : null } : s))
     );
-    showToast(`Canción movida a "${targetFolder.name}".`, 'success');
+    if (targetFolder) {
+      addAuditLog('cancion_movida', songId, 'song', `${currentUser.name} asignó el canto a la carpeta "${targetFolder.name}"`);
+      showToast(`Canción asignada a "${targetFolder.name}".`, 'success');
+    } else {
+      addAuditLog('cancion_movida', songId, 'song', `${currentUser.name} desasignó el canto de carpeta`);
+      showToast('Canción desasignada de carpeta.', 'info');
+    }
+  };
+
+  const getSongFolderName = (song: Song): string => {
+    if (!song.folderId) return 'Sin carpeta';
+    const folder = folders.find(f => f.id === song.folderId);
+    return folder ? folder.name : 'Sin carpeta';
   };
 
   const archiveSong = (songId: string) => {
@@ -652,6 +652,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         archiveSong,
         createFolder,
         renameFolder,
+        getSongFolderName,
         createUser,
         toggleUserStatus,
         deleteUser,

@@ -214,7 +214,7 @@ export const AdminRequestsView: React.FC = () => {
                       </td>
                       <td className="py-3 px-4">
                         <div className="font-medium text-slate-800">{req.songName}</div>
-                        <div className="text-[11px] text-slate-400">{req.folderName}</div>
+                        <div className="text-[11px] text-slate-400">{req.folderName || 'Sin carpeta'}</div>
                       </td>
                       <td className="py-3 px-4 font-mono tabular-nums text-slate-500">
                         {formattedDate}
@@ -303,7 +303,7 @@ export const AdminRequestsView: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Carpeta:</span>
-                <span className="text-slate-600">{selectedRequest.folderName}</span>
+                <span className="text-slate-600">{selectedRequest.folderName || 'Sin carpeta'}</span>
               </div>
             </div>
 
@@ -452,7 +452,7 @@ export const AdminRequestsView: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Carpeta:</span>
-                <span className="text-slate-700">{selectedRequest.folderName}</span>
+                <span className="text-slate-700">{selectedRequest.folderName || 'Sin carpeta'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Fecha de solicitud:</span>

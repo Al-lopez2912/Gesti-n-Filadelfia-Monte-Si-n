@@ -26,8 +26,8 @@ export type SongStatus = 'activo' | 'archivado';
 export interface Song {
   id: string;
   name: string;
-  folderId: string;
-  folderName: string;
+  folderId: string | null;
+  folderName?: string | null;
   storagePath: string;
   uploadedAt: string;
   uploadedBy: string;
@@ -49,7 +49,7 @@ export interface RequestItem {
   userEmail: string;
   songId: string;
   songName: string;
-  folderName: string;
+  folderName?: string | null;
   status: RequestStatus;
   requestedAt: string;
   reviewedBy?: string;

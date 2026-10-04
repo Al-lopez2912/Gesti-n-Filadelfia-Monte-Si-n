@@ -9,7 +9,7 @@ interface SongCardProps {
 }
 
 export const SongCard: React.FC<SongCardProps> = ({ song, onOpenDetails }) => {
-  const { currentUser, getSongAccessStatus, startPlayingSong } = useApp();
+  const { currentUser, getSongAccessStatus, startPlayingSong, getSongFolderName } = useApp();
   const access = getSongAccessStatus(song.id);
 
   const isBasic = currentUser?.role === 'USUARIO_BASICO';
@@ -95,7 +95,7 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onOpenDetails }) => {
 
           {/* Zero-pill metadata */}
           <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-            <span className="truncate">{song.folderName}</span>
+            <span className="truncate">{getSongFolderName(song)}</span>
             <span aria-hidden="true" className="text-slate-300">·</span>
             <span className="font-mono tabular-nums shrink-0">{song.fileSize}</span>
           </div>

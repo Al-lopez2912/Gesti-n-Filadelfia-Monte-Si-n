@@ -45,7 +45,8 @@ export const LibraryView: React.FC = () => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = song.name.toLowerCase().includes(q);
-      const matchFolder = song.folderName.toLowerCase().includes(q);
+      const folder = song.folderId ? folders.find(f => f.id === song.folderId) : null;
+      const matchFolder = folder ? folder.name.toLowerCase().includes(q) : false;
       const matchDesc = song.description?.toLowerCase().includes(q);
       return matchName || matchFolder || matchDesc;
     }

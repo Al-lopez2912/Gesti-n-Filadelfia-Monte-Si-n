@@ -307,6 +307,21 @@ export const INITIAL_SONGS: Song[] = [
     fileSize: '59.3 MB',
     description: 'Himno de la Reforma con coro coral y fondo sinfónico.',
     lyricsSnippet: 'Castillo fuerte es nuestro Dios, defensa y buen escudo; con su poder nos librará.'
+  },
+  {
+    id: 'sng-13',
+    name: 'Glorioso Salvador',
+    folderId: null,
+    storagePath: 'gs://cantos-storage/uploads/glorioso_salvador.mp4',
+    uploadedAt: '2026-10-04T08:50:00Z',
+    uploadedBy: 'usr-raquel',
+    uploadedByName: 'Raquel Peña',
+    status: 'activo',
+    thumbnailUrl: thumbAdoracion,
+    duration: '3:35',
+    fileSize: '52.1 MB',
+    description: 'Video MP4 recién subido, pendiente de organizar en carpeta por el administrador.',
+    lyricsSnippet: 'Glorioso Salvador, mi guía y protector, te exaltamos en espíritu y verdad.'
   }
 ];
 

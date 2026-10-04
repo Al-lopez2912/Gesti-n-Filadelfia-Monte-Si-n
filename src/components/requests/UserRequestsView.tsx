@@ -94,7 +94,7 @@ export const UserRequestsView: React.FC = () => {
                         {req.songName}
                       </td>
                       <td className="py-3.5 px-4 text-slate-500">
-                        {req.folderName}
+                        {req.folderName || 'Sin carpeta'}
                       </td>
                       <td className="py-3.5 px-4 font-mono tabular-nums text-slate-500">
                         {formattedDate}

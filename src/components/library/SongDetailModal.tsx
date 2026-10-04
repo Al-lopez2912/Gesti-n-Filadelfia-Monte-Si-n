@@ -28,7 +28,8 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
     startPlayingSong,
     renameSong,
     moveSong,
-    archiveSong
+    archiveSong,
+    getSongFolderName
   } = useApp();
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -56,10 +57,8 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
   };
 
   const handleSaveMove = () => {
-    if (selectedFolderId) {
-      moveSong(song.id, selectedFolderId);
-      setIsMovingFolder(false);
-    }
+    moveSong(song.id, selectedFolderId || null);
+    setIsMovingFolder(false);
   };
 
   const handleArchive = () => {
@@ -91,7 +90,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
 
           {/* Title on bottom of media banner */}
           <div className="absolute bottom-3 left-4 right-4 text-white">
-            <p className="text-xs text-slate-300 font-medium">{song.folderName}</p>
+            <p className="text-xs text-slate-300 font-medium">{getSongFolderName(song)}</p>
             <h2 className="text-lg font-semibold tracking-tight text-white line-clamp-1">
               {song.name}
             </h2>
@@ -217,7 +216,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
                     onChange={e => setSelectedFolderId(e.target.value)}
                     className="flex-1 px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-blue-600 bg-white"
                   >
-                    <option value="">Seleccionar carpeta destino...</option>
+                    <option value="">Sin carpeta (Desasignar)</option>
                     {folders.map(f => (
                       <option key={f.id} value={f.id}>{f.name}</option>
                     ))}
@@ -225,10 +224,9 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
                   <button
                     type="button"
                     onClick={handleSaveMove}
-                    disabled={!selectedFolderId}
-                    className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
+                    className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
                   >
-                    Mover
+                    Guardar
                   </button>
                   <button
                     type="button"
@@ -254,7 +252,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({ song, onClose 
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedFolderId(song.folderId);
+                      setSelectedFolderId(song.folderId || '');
                       setIsMovingFolder(true);
                     }}
                     className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
