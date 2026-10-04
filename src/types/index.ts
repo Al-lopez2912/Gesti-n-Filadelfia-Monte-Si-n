@@ -27,7 +27,6 @@ export interface Song {
   id: string;
   name: string;
   folderId: string | null;
-  folderName?: string | null;
   storagePath: string;
   uploadedAt: string;
   uploadedBy: string;

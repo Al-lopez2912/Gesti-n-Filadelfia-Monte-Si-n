@@ -18,6 +18,7 @@ import {
   INITIAL_AUDIT_LOGS,
   INITIAL_SYSTEM_CONFIG
 } from '../data/mockData';
+import defaultSongThumbnail from '../assets/images/thumb_canto_adoracion_1791130178836.jpg';
 
 export type SongAccessState = 'SIN_PERMISO' | 'SOLICITUD_PENDIENTE' | 'ACCESO_AUTORIZADO' | 'ACCESO_EXPIRADO' | 'SOLICITUD_RECHAZADA';
 
@@ -424,7 +425,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       uploadedBy: currentUser.uid,
       uploadedByName: currentUser.name,
       status: 'activo',
-      thumbnailUrl: INITIAL_SONGS[0].thumbnailUrl,
+      thumbnailUrl: defaultSongThumbnail,
       duration: data.duration || '3:50',
       fileSize: '58.0 MB',
       description: data.description || 'Canto espiritual subido para soporte de congregación.',
