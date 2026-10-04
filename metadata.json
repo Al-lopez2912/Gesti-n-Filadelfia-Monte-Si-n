@@ -1,0 +1,6 @@
+{
+  "name": "Videoteca de Cantos Espirituales",
+  "description": "Aplicación privada para gestión y reproducción autorizada de cantos espirituales en video para servicios de congregación.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
