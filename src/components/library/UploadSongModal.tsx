@@ -8,13 +8,12 @@ interface UploadSongModalProps {
 }
 
 export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClose }) => {
-  const { folders, uploadSong, currentUser } = useApp();
+  const { uploadSong, currentUser } = useApp();
 
   const [name, setName] = useState('');
-  const [folderId, setFolderId] = useState(folders[0]?.id || '');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [description, setDescription] = useState('');
   const [duration, setDuration] = useState('3:45');
+  const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -26,7 +25,7 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      // Auto-populate name if empty
+      // Auto-populate song name from file name if empty
       if (!name) {
         const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
         setName(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
@@ -36,12 +35,12 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError('Por favor ingrese el nombre del canto.');
+    if (!selectedFile && !name.trim()) {
+      setError('Por favor seleccione un archivo MP4 o ingrese el nombre del canto.');
       return;
     }
-    if (!folderId) {
-      setError('Seleccione una carpeta de destino.');
+    if (!name.trim()) {
+      setError('Por favor ingrese el nombre de la canción.');
       return;
     }
 
@@ -66,7 +65,6 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
 
       await uploadSong({
         name,
-        folderId,
         fileName: selectedFile ? selectedFile.name : `${name.toLowerCase().replace(/\s+/g, '_')}.mp4`,
         duration,
         description
@@ -114,7 +112,7 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
               Canción subida correctamente
             </h4>
             <p className="text-xs text-slate-500">
-              El canto ya está disponible en la carpeta seleccionada.
+              El canto ya está disponible en la biblioteca.
             </p>
           </div>
         ) : (
@@ -125,43 +123,7 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
               </div>
             )}
 
-            {/* Song Name */}
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Nombre de la canción <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                disabled={isUploading}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Ej. Al Dios Santo y Fiel"
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900"
-              />
-            </div>
-
-            {/* Folder Selection */}
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Carpeta / Categoría <span className="text-rose-500">*</span>
-              </label>
-              <select
-                required
-                disabled={isUploading}
-                value={folderId}
-                onChange={e => setFolderId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
-              >
-                {folders.map(f => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* File selection / MP4 */}
+            {/* 1. File Selection / MP4 */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">
                 Archivo MP4 <span className="text-rose-500">*</span>
@@ -192,7 +154,23 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
               </div>
             </div>
 
-            {/* Estimated Duration & Optional Description */}
+            {/* 2. Song Name */}
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Nombre de la canción <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                disabled={isUploading}
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Ej. Al Dios Santo y Fiel"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900"
+              />
+            </div>
+
+            {/* Auto-assigned Uploader & Estimated Duration */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
@@ -218,6 +196,7 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ isOpen, onClos
               </div>
             </div>
 
+            {/* Optional Note */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">
                 Nota o referencia (Opcional)

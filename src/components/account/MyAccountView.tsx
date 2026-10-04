@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { LogOut, CheckCircle2, XCircle } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 export const MyAccountView: React.FC = () => {
   const { currentUser, logout } = useApp();
@@ -17,49 +17,6 @@ export const MyAccountView: React.FC = () => {
     }
   };
 
-  const permissionsList = [
-    {
-      title: 'Consultar biblioteca de cantos',
-      allowed: true,
-      description: 'Acceso al catálogo de videos y búsqueda temática.'
-    },
-    {
-      title: 'Solicitar permisos de reproducción',
-      allowed: true,
-      description: 'Generar peticiones para participar en cultos de viernes o domingo.'
-    },
-    {
-      title: 'Reproducir videos autorizados para Google Meet',
-      allowed: true,
-      description: 'Pantalla completa limpia sin distracciones durante la transmisión.'
-    },
-    {
-      title: 'Subir archivos MP4 y organizar carpetas',
-      allowed: role === 'ADMIN' || role === 'SUPERADMIN',
-      description: 'Carga de nuevos videos desde memorias USB o archivos locales.'
-    },
-    {
-      title: 'Aprobar o rechazar solicitudes con fecha personalizada',
-      allowed: role === 'ADMIN' || role === 'SUPERADMIN',
-      description: 'Definir fecha y hora exacta de expiración para cada usuario.'
-    },
-    {
-      title: 'Consultar historial y trazabilidad',
-      allowed: role === 'ADMIN' || role === 'SUPERADMIN',
-      description: 'Registro de auditoría de todas las acciones del sistema.'
-    },
-    {
-      title: 'Administrar cuentas y asignar roles',
-      allowed: role === 'SUPERADMIN',
-      description: 'Crear usuarios, cambiar privilegios y suspender cuentas.'
-    },
-    {
-      title: 'Modificar configuración global de la congregación',
-      allowed: role === 'SUPERADMIN',
-      description: 'Ajuste de zona horaria, horarios de culto y almacenamiento.'
-    }
-  ];
-
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="pb-2 border-b border-slate-200">
@@ -67,7 +24,7 @@ export const MyAccountView: React.FC = () => {
           Mi Cuenta
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Información del usuario y resumen de atribuciones según su rol
+          Información del usuario y estado de la cuenta
         </p>
       </div>
 
@@ -100,38 +57,7 @@ export const MyAccountView: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Role Permissions Breakdown */}
-      <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-xs space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">
-            Privilegios del Rol Actual
-          </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Los permisos son validados en el cliente para el prototipo y serán reforzados por Firebase Security Rules en producción.
-          </p>
-        </div>
-
-        <div className="divide-y divide-slate-100 text-xs">
-          {permissionsList.map((perm, idx) => (
-            <div key={idx} className="py-2.5 flex items-start gap-3">
-              {perm.allowed ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-4 h-4 text-slate-300 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className={`font-medium ${perm.allowed ? 'text-slate-800' : 'text-slate-400 line-through'}`}>
-                  {perm.title}
-                </p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  {perm.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
+

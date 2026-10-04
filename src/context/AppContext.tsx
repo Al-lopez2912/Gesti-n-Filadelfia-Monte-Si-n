@@ -68,7 +68,7 @@ interface AppContextType {
   revokePermission: (permissionId: string) => void;
   
   // Song & Library management
-  uploadSong: (data: { name: string; folderId: string; fileName: string; duration?: string; description?: string }) => Promise<void>;
+  uploadSong: (data: { name: string; folderId?: string; fileName: string; duration?: string; description?: string }) => Promise<void>;
   renameSong: (songId: string, newName: string) => void;
   moveSong: (songId: string, targetFolderId: string) => void;
   archiveSong: (songId: string) => void;
@@ -402,27 +402,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Upload Song (Admin)
-  const uploadSong = async (data: { name: string; folderId: string; fileName: string; duration?: string; description?: string }) => {
+  const uploadSong = async (data: { name: string; folderId?: string; fileName: string; duration?: string; description?: string }) => {
     if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN')) {
       throw new Error('No autorizado');
     }
 
-    const folder = folders.find(f => f.id === data.folderId);
-    const folderName = folder ? folder.name : 'General';
+    const targetFolder = data.folderId ? folders.find(f => f.id === data.folderId) : null;
+    const folderName = targetFolder ? targetFolder.name : 'Sin carpeta';
+    const folderId = targetFolder ? targetFolder.id : '';
 
     // Pick appropriate thumbnail based on folder
     let thumb = INITIAL_SONGS[0].thumbnailUrl;
-    if (data.folderId === 'fld-domingo') thumb = INITIAL_SONGS[1].thumbnailUrl;
-    else if (data.folderId === 'fld-viernes') thumb = INITIAL_SONGS[2].thumbnailUrl;
-    else if (data.folderId === 'fld-comunion') thumb = INITIAL_SONGS[4].thumbnailUrl;
-    else if (data.folderId === 'fld-himnos') thumb = INITIAL_SONGS[3].thumbnailUrl;
+    if (folderId === 'fld-domingo') thumb = INITIAL_SONGS[1].thumbnailUrl;
+    else if (folderId === 'fld-viernes') thumb = INITIAL_SONGS[2].thumbnailUrl;
+    else if (folderId === 'fld-comunion') thumb = INITIAL_SONGS[4].thumbnailUrl;
+    else if (folderId === 'fld-himnos') thumb = INITIAL_SONGS[3].thumbnailUrl;
 
     const newSong: Song = {
       id: 'sng-' + Date.now(),
       name: data.name.trim(),
-      folderId: data.folderId,
+      folderId: folderId,
       folderName,
-      storagePath: `gs://cantos-storage/${data.folderId}/${data.fileName.toLowerCase().replace(/\s+/g, '_')}`,
+      storagePath: `gs://cantos-storage/uploads/${data.fileName.toLowerCase().replace(/\s+/g, '_')}`,
       uploadedAt: new Date().toISOString(),
       uploadedBy: currentUser.uid,
       uploadedByName: currentUser.name,
@@ -430,7 +431,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       thumbnailUrl: thumb,
       duration: data.duration || '3:50',
       fileSize: '58.0 MB',
-      description: data.description || 'Canto espiritual grabado para soporte de congregación.',
+      description: data.description || 'Canto espiritual subido para soporte de congregación.',
       lyricsSnippet: 'Alabanza congregacional preparada para el servicio.'
     };
 
@@ -440,7 +441,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       'cancion_subida',
       newSong.id,
       'song',
-      `${currentUser.name} subió la canción "${newSong.name}" a la carpeta "${folderName}"`
+      targetFolder
+        ? `${currentUser.name} subió la canción "${newSong.name}" a la carpeta "${folderName}"`
+        : `${currentUser.name} subió la canción "${newSong.name}" a la biblioteca`
     );
 
     showToast(`Canción subida correctamente: "${newSong.name}".`, 'success');

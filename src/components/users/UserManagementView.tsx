@@ -346,7 +346,6 @@ export const UserManagementView: React.FC = () => {
                 }`}
               >
                 <p className="font-medium">Usuario Básico</p>
-                <p className="text-[11px] text-slate-500">Solo solicitar permisos y reproducir cantos autorizados.</p>
               </button>
 
               <button
@@ -359,7 +358,6 @@ export const UserManagementView: React.FC = () => {
                 }`}
               >
                 <p className="font-medium">Administrador</p>
-                <p className="text-[11px] text-slate-500">Aprobar solicitudes, subir cantos y organizar carpetas.</p>
               </button>
 
               <button
@@ -372,7 +370,6 @@ export const UserManagementView: React.FC = () => {
                 }`}
               >
                 <p className="font-medium">SuperAdmin</p>
-                <p className="text-[11px] text-slate-500">Control total del sistema, administración de cuentas y ajustes globales.</p>
               </button>
             </div>
           </div>
