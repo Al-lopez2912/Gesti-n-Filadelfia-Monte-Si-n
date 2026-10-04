@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO TEMPORAL DE DESARROLLO (MOCK DATA)
+ * Este archivo contiene los datos simulados iniciales del prototipo.
+ * En la siguiente etapa en VS Code, estos datos serán reemplazados por
+ * Cloud Firestore y Firebase Storage.
+ */
+
 import { User, Folder, Song, RequestItem, Permission, AuditLog, SystemConfig } from '../types';
 
 import thumbAdoracion from '../assets/images/thumb_canto_adoracion_1791130178836.jpg';

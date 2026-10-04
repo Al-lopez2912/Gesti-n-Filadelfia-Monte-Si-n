@@ -4,14 +4,11 @@ import {
   Clock,
   Music,
   CheckCircle2,
-  ArrowRight,
-  Upload,
-  Calendar
+  ArrowRight
 } from 'lucide-react';
 
 export const AdminDashboardView: React.FC = () => {
   const {
-    currentUser,
     requests,
     songs,
     permissions,

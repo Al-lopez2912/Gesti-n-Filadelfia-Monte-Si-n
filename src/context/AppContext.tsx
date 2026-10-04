@@ -7,8 +7,7 @@ import {
   RequestItem,
   Permission,
   AuditLog,
-  SystemConfig,
-  SongStatus
+  SystemConfig
 } from '../types';
 import {
   INITIAL_USERS,
@@ -50,6 +49,7 @@ interface AppContextType {
   setSelectedSongDetail: (song: Song | null) => void;
   
   // Auth & Roles
+  login: (userId: string) => void;
   loginAsUser: (userId: string) => void;
   loginWithCredentials: (email: string, pass: string) => boolean;
   logout: () => void;
@@ -62,7 +62,9 @@ interface AppContextType {
   };
   
   // Actions
+  requestPermission: (songId: string) => void;
   requestSongAccess: (songId: string) => void;
+  approveRequest: (requestId: string, expiresAtIso: string) => void;
   approveRequestWithCustomExpiration: (requestId: string, expiresAtIso: string) => void;
   rejectRequest: (requestId: string, reason?: string) => void;
   revokePermission: (permissionId: string) => void;
@@ -78,6 +80,9 @@ interface AppContextType {
   
   // User Management (SuperAdmin)
   createUser: (userData: { name: string; email: string; role: UserRole; initialPassword?: string }) => void;
+  updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email' | 'role' | 'status'>>) => void;
+  disableUser: (userId: string) => void;
+  enableUser: (userId: string) => void;
   toggleUserStatus: (userId: string) => void;
   deleteUser: (userId: string) => void;
   changeUserRole: (userId: string, newRole: UserRole) => void;
@@ -543,6 +548,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  const disableUser = (userId: string) => {
+    if (!currentUser || currentUser.role !== 'SUPERADMIN') return;
+    if (userId === currentUser.uid) {
+      showToast('No puede desactivar su propia cuenta de SuperAdmin.', 'warning');
+      return;
+    }
+    setUsers(prev =>
+      prev.map(u => {
+        if (u.uid === userId && u.status !== 'desactivado') {
+          addAuditLog('usuario_desactivado', u.uid, 'user', `${currentUser.name} desactivó la cuenta de ${u.name}`);
+          showToast(`Usuario ${u.name} desactivado.`, 'info');
+          return { ...u, status: 'desactivado' };
+        }
+        return u;
+      })
+    );
+  };
+
+  const enableUser = (userId: string) => {
+    if (!currentUser || currentUser.role !== 'SUPERADMIN') return;
+    setUsers(prev =>
+      prev.map(u => {
+        if (u.uid === userId && u.status !== 'activo') {
+          addAuditLog('usuario_activado', u.uid, 'user', `${currentUser.name} activó la cuenta de ${u.name}`);
+          showToast(`Usuario ${u.name} activado.`, 'info');
+          return { ...u, status: 'activo' };
+        }
+        return u;
+      })
+    );
+  };
+
+  const updateUser = (userId: string, updates: Partial<Pick<User, 'name' | 'email' | 'role' | 'status'>>) => {
+    if (!currentUser || currentUser.role !== 'SUPERADMIN') return;
+    setUsers(prev =>
+      prev.map(u => {
+        if (u.uid === userId) {
+          const updated = { ...u, ...updates };
+          addAuditLog('usuario_modificado', u.uid, 'user', `${currentUser.name} actualizó los datos de ${u.name}`);
+          showToast(`Usuario ${u.name} actualizado.`, 'success');
+          return updated;
+        }
+        return u;
+      })
+    );
+  };
+
   const deleteUser = (userId: string) => {
     if (!currentUser || currentUser.role !== 'SUPERADMIN') return;
     if (userId === currentUser.uid) {
@@ -638,11 +690,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         stopPlayingSong,
         selectedSongDetail,
         setSelectedSongDetail,
+        login: loginAsUser,
         loginAsUser,
         loginWithCredentials,
         logout,
         getSongAccessStatus,
+        requestPermission: requestSongAccess,
         requestSongAccess,
+        approveRequest: approveRequestWithCustomExpiration,
         approveRequestWithCustomExpiration,
         rejectRequest,
         revokePermission,
@@ -654,6 +709,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         renameFolder,
         getSongFolderName,
         createUser,
+        updateUser,
+        disableUser,
+        enableUser,
         toggleUserStatus,
         deleteUser,
         changeUserRole,

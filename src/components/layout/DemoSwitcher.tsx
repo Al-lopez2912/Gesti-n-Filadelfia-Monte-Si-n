@@ -1,3 +1,9 @@
+/**
+ * COMPONENTE TEMPORAL DE DESARROLLO (DEMO SWITCHER)
+ * Diseñado exclusivamente para evaluar y validar los flujos de los tres roles
+ * en la fase de prototipo antes de la conexión con Firebase Auth.
+ */
+
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShieldCheck, UserCheck, ShieldAlert, RotateCcw } from 'lucide-react';
